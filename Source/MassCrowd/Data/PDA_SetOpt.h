@@ -13,7 +13,7 @@ UCLASS()
 class MASSCROWD_API UPDA_SetOpt : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-public:
+public: // Skeletal Mesh
 	UPROPERTY(EditAnywhere)
 	bool bPauseAnim = false;
 	
@@ -33,11 +33,25 @@ public:
 	bool bAllowRigidBodyAnimNode = true;
 
 	UPROPERTY(EditAnywhere)
-	bool bCollisionEnable = false; // SetCollisionEnabled(ECollisionEnabled::NoCollision)
+	bool bCollisionEnable = false;
 	
 	UPROPERTY(EditAnywhere)
-	float TickInterval = 0.02f; // SetComponentTickInterval(0.05);
+	float TickInterval = 0.02f; 
 
 	UPROPERTY(EditAnywhere)
-	bool bOverlapEvent = true; // SetGenerateOverlapEvents(false);
+	bool bOverlapEvent = true;
+
+public: // Movement Component
+	UPROPERTY(EditAnywhere)
+	bool bMoveEnablePhysicsInteraction = true;
+	
+	UPROPERTY(EditAnywhere)
+	int32 MoveMaxSimIter = 8;
+	
+	UPROPERTY(EditAnywhere)
+	bool bCheckFloor = true;	// 틱 마다 바닥으로 라인 트레이싱
+
+	UPROPERTY(EditAnywhere)
+	bool bMoveUseAccel = true;	// 가속도 계산
+
 };

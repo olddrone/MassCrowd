@@ -48,12 +48,11 @@ void UOptComp::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-
 void UOptComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	DrawDebug();
+	//DrawDebug();
 	SetupOptimization();
 }
 
@@ -84,32 +83,35 @@ void UOptComp::DrawDebug()
 void UOptComp::SetupOptimization()
 {
 	UPDA_SetOpt* Data = OptData[static_cast<int>(OptState)];
-	if (Data) {
-		// 최적화는 스켈레탈 메시 컴포넌트와 무브먼트 컴포넌트(예정), 애니메이션도 멀티 쓰레드로 최적화 가능
-		if (MeshComp) {
-			MeshComp->bPauseAnims = Data->bPauseAnim;
-			MeshComp->SetCastShadow(Data->bCastShadow);
-			MeshComp->SetVisibility(Data->bSetVisibility);
-			MeshComp->bPerBoneMotionBlur = Data->bBoneMotionBlur;
-			MeshComp->ForcedLodModel = Data->ForcedLodModel;
-		
-			MeshComp->SetAllowRigidBodyAnimNode(Data->bAllowRigidBodyAnimNode);
-		
-			ECollisionEnabled::Type CollisionType = (Data->bCollisionEnable) ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision;
-			
-			MeshComp->SetCollisionEnabled(CollisionType);
-			MeshComp->SetComponentTickInterval(Data->TickInterval);
-			MeshComp->SetGenerateOverlapEvents(Data->bOverlapEvent);
-	
-		}
+	SkeletalMeshOptimization(Data);
+	MovementCompOptimization(Data);
+}
 
-		/*
-		if (MoveComp) {
-			MoveComp->bEnablePhysicsInteraction = false;
-			MoveComp->SetComponentTickInterval(0.5); // 틱 인터벌
-			MoveComp->MaxSimulationIterations = 4; // 기본 값 8, 4, 2, 1
-		}
-		*/
-	}
+void UOptComp::SkeletalMeshOptimization(const UPDA_SetOpt* Data)
+{
+	if (!IsValid(MeshComp) || !IsValid(Data))
+		return;
 
+	MeshComp->bPauseAnims = Data->bPauseAnim;
+	MeshComp->SetCastShadow(Data->bCastShadow);
+	MeshComp->SetVisibility(Data->bSetVisibility);
+	MeshComp->bPerBoneMotionBlur = Data->bBoneMotionBlur;
+	MeshComp->ForcedLodModel = Data->ForcedLodModel;
+	MeshComp->SetAllowRigidBodyAnimNode(Data->bAllowRigidBodyAnimNode);
+	ECollisionEnabled::Type CollisionType = (Data->bCollisionEnable) ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision;
+	MeshComp->SetCollisionEnabled(CollisionType);
+	MeshComp->SetComponentTickInterval(Data->TickInterval);
+	MeshComp->SetGenerateOverlapEvents(Data->bOverlapEvent);
+}
+
+void UOptComp::MovementCompOptimization(const UPDA_SetOpt* Data)
+{
+	if (!IsValid(MoveComp) || !IsValid(Data))
+		return;
+
+	MoveComp->bEnablePhysicsInteraction = Data->bMoveEnablePhysicsInteraction;
+	MoveComp->SetComponentTickInterval(Data->TickInterval);
+	MoveComp->MaxSimulationIterations = Data->MoveMaxSimIter;
+	MoveComp->bAlwaysCheckFloor = Data->bCheckFloor;
+	MoveComp->bRequestedMoveUseAcceleration = Data->bMoveUseAccel;
 }

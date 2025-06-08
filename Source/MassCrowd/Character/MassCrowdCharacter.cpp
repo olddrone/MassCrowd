@@ -49,57 +49,17 @@ AMassCrowdCharacter::AMassCrowdCharacter()
 void AMassCrowdCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GEngine->Exec(GetWorld(), TEXT("stat fps"));
+	GEngine->Exec(GetWorld(), TEXT("stat unit"));
+	GEngine->Exec(GetWorld(), TEXT("stat NamedEvents"));
 }
 
 void AMassCrowdCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	const FVector Location = GetActorLocation();
-	DrawDebugSphere(GetWorld(),Location, 800, 20, FColor::Red, false, -1);
-	DrawDebugSphere(GetWorld(),Location, 1600, 20, FColor::Green, false, -1);
-	DrawDebugSphere(GetWorld(),Location, 2400, 20, FColor::Blue, false, -1);
-	
-	{
-		APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
-		APlayerCameraManager* Camera = PC->PlayerCameraManager;
-
-		const FVector CamLocation = Camera->GetCameraLocation();
-		const FRotator CamRotation = Camera->GetCameraRotation();
-		const FVector CamForward = CamRotation.Vector();
-		const float FOV = Camera->GetFOVAngle();
-		const float ViewDistance = 1200.0f; // 원하는 시야 거리
-
-		// 뷰포트의 반 FOV 각도로 좌우 방향 벡터 계산
-		const float HalfFOV = FMath::DegreesToRadians(FOV * 0.5f);
-		const float AspectRatio = 16.0f / 9.0f;
-		const float HalfHeight = FMath::Tan(HalfFOV) * ViewDistance;
-		const float HalfWidth = HalfHeight * AspectRatio;
-
-		// 카메라 로컬 축 기준
-		const FVector Right = FRotationMatrix(CamRotation).GetUnitAxis(EAxis::Y);
-		const FVector Up = FRotationMatrix(CamRotation).GetUnitAxis(EAxis::Z);
-
-		const FVector Center = CamLocation + CamForward * ViewDistance;
-
-		const FVector TopLeft = Center + (Up * HalfHeight) - (Right * HalfWidth);
-		const FVector TopRight = Center + (Up * HalfHeight) + (Right * HalfWidth);
-		const FVector BottomLeft = Center - (Up * HalfHeight) - (Right * HalfWidth);
-		const FVector BottomRight = Center - (Up * HalfHeight) + (Right * HalfWidth);
-
-		//카메라에서 4개 모서리까지 라인
-		DrawDebugLine(GetWorld(), CamLocation, TopLeft, FColor::Yellow, false, -1, 0, 5);
-		DrawDebugLine(GetWorld(), CamLocation, TopRight, FColor::Yellow, false, -1, 0, 5);
-		DrawDebugLine(GetWorld(), CamLocation, BottomLeft, FColor::Yellow, false, -1, 0, 5);
-		DrawDebugLine(GetWorld(), CamLocation, BottomRight, FColor::Yellow, false, -1, 0, 5);
-
-		// 네 개의 모서리를 선으로 연결 (프러스텀)
-		DrawDebugLine(GetWorld(), TopLeft, TopRight, FColor::Yellow, false, -1, 0, 5);
-		DrawDebugLine(GetWorld(), TopRight, BottomRight, FColor::Yellow, false, -1, 0, 5);
-		DrawDebugLine(GetWorld(), BottomRight, BottomLeft, FColor::Yellow, false, -1, 0, 5);
-		DrawDebugLine(GetWorld(), BottomLeft, TopLeft, FColor::Yellow, false, -1, 0, 5);
-	}
-
+	// DrawDebug();
 }
 
 void AMassCrowdCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -140,5 +100,53 @@ void AMassCrowdCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr) {
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AMassCrowdCharacter::DrawDebug()
+{
+	const FVector Location = GetActorLocation();
+	DrawDebugSphere(GetWorld(), Location, 800, 20, FColor::Red, false, -1);
+	DrawDebugSphere(GetWorld(), Location, 1600, 20, FColor::Green, false, -1);
+	DrawDebugSphere(GetWorld(), Location, 2400, 20, FColor::Blue, false, -1);
+
+	{
+		APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+		APlayerCameraManager* Camera = PC->PlayerCameraManager;
+
+		const FVector CamLocation = Camera->GetCameraLocation();
+		const FRotator CamRotation = Camera->GetCameraRotation();
+		const FVector CamForward = CamRotation.Vector();
+		const float FOV = Camera->GetFOVAngle();
+		const float ViewDistance = 1200.0f; // 원하는 시야 거리
+
+		// 뷰포트의 반 FOV 각도로 좌우 방향 벡터 계산
+		const float HalfFOV = FMath::DegreesToRadians(FOV * 0.5f);
+		const float AspectRatio = 16.0f / 9.0f;
+		const float HalfHeight = FMath::Tan(HalfFOV) * ViewDistance;
+		const float HalfWidth = HalfHeight * AspectRatio;
+
+		// 카메라 로컬 축 기준
+		const FVector Right = FRotationMatrix(CamRotation).GetUnitAxis(EAxis::Y);
+		const FVector Up = FRotationMatrix(CamRotation).GetUnitAxis(EAxis::Z);
+
+		const FVector Center = CamLocation + CamForward * ViewDistance;
+
+		const FVector TopLeft = Center + (Up * HalfHeight) - (Right * HalfWidth);
+		const FVector TopRight = Center + (Up * HalfHeight) + (Right * HalfWidth);
+		const FVector BottomLeft = Center - (Up * HalfHeight) - (Right * HalfWidth);
+		const FVector BottomRight = Center - (Up * HalfHeight) + (Right * HalfWidth);
+
+		//카메라에서 4개 모서리까지 라인
+		DrawDebugLine(GetWorld(), CamLocation, TopLeft, FColor::Yellow, false, -1, 0, 5);
+		DrawDebugLine(GetWorld(), CamLocation, TopRight, FColor::Yellow, false, -1, 0, 5);
+		DrawDebugLine(GetWorld(), CamLocation, BottomLeft, FColor::Yellow, false, -1, 0, 5);
+		DrawDebugLine(GetWorld(), CamLocation, BottomRight, FColor::Yellow, false, -1, 0, 5);
+
+		// 네 개의 모서리를 선으로 연결 (프러스텀)
+		DrawDebugLine(GetWorld(), TopLeft, TopRight, FColor::Yellow, false, -1, 0, 5);
+		DrawDebugLine(GetWorld(), TopRight, BottomRight, FColor::Yellow, false, -1, 0, 5);
+		DrawDebugLine(GetWorld(), BottomRight, BottomLeft, FColor::Yellow, false, -1, 0, 5);
+		DrawDebugLine(GetWorld(), BottomLeft, TopLeft, FColor::Yellow, false, -1, 0, 5);
 	}
 }

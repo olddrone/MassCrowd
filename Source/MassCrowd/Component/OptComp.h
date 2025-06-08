@@ -37,6 +37,8 @@ protected:
 private:
 	void DrawDebug();
 	void SetupOptimization();
+	void SkeletalMeshOptimization(const UPDA_SetOpt* Data);
+	void MovementCompOptimization(const UPDA_SetOpt* Data);
 
 private:
 	mutable FCriticalSection Section;
@@ -48,6 +50,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class ACharacter> Player;
+
 	UPROPERTY()
 	TObjectPtr<class USkeletalMeshComponent> MeshComp;
 	

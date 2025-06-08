@@ -1,0 +1,1 @@
+UnrealEditor.exe %cd%/MassCrowd.uproject - statnamedevents -trace=cpu,gpu,frame,log,bookmark,file,loadtime

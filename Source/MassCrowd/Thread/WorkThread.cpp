@@ -114,7 +114,6 @@ EOptState FWorkThread::CalculArea(const AActor* Player, const AActor* Bot, const
 
 	EOptState State;
 	float Dist = FVector::Dist(Player->GetActorLocation(), Bot->GetActorLocation());
-	UE_LOG(LogTemp, Warning, TEXT("Dist : %f"), Dist);
 
 	if (Dist > OptArea::Second)
 		State = EOptState::EOS_Third;
@@ -139,7 +138,7 @@ bool FWorkThread::IsInViewPort(const APlayerCameraManager* Camera, const AActor*
 	const FVector CameraForward = Camera->GetActorForwardVector();
 
 	// 카메라의 FOV → 라디안 → 코사인값
-	// FOV = Camera->GetFOVAngle() 하고 싶은데 게임스레드 접근 시 문제가 나는듯
+	// FOV = Camera->GetFOVAngle() 하고 싶은데 게임스레드 접근 시 문제
 	const float FOV = 90.f;
 	const float FOVRadian = FMath::DegreesToRadians(FOV);
 	const float CosValue = FMath::Cos(FOVRadian/2);
