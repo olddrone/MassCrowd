@@ -54,4 +54,7 @@ public: // Movement Component
 	UPROPERTY(EditAnywhere)
 	bool bMoveUseAccel = true;	// 가속도 계산
 
+	UPROPERTY(EditAnywhere)
+	bool bSweepWhileWalking = true;	// 가속도 계산
+
 };

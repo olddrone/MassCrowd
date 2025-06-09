@@ -52,7 +52,7 @@ void UOptComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	//DrawDebug();
+	DrawDebug();
 	SetupOptimization();
 }
 
@@ -114,4 +114,5 @@ void UOptComp::MovementCompOptimization(const UPDA_SetOpt* Data)
 	MoveComp->MaxSimulationIterations = Data->MoveMaxSimIter;
 	MoveComp->bAlwaysCheckFloor = Data->bCheckFloor;
 	MoveComp->bRequestedMoveUseAcceleration = Data->bMoveUseAccel;
+	MoveComp->bSweepWhileNavWalking = Data->bSweepWhileWalking;
 }
