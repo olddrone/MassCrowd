@@ -41,8 +41,8 @@ public:
 
 private:
 	void RemoveComp(const int32 Handle);
-	static EOptState CalculArea(const AActor* Player, const AActor* Bot, const float InFOV = 90.f);
-	static bool IsInViewPort(const APlayerCameraManager* Camera, const AActor* Bot);
+	static EOptState CalculArea(const AActor* Player, const AActor* Bot);
+	static bool IsInViewPort(const APlayerCameraManager* Camera, const AActor* Bot, const float InFOV = 90.f);
 
 private:
 	TArray<TObjectPtr<UOptComp>> Components;

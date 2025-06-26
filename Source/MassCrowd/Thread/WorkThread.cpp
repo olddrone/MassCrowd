@@ -31,7 +31,7 @@ uint32 FWorkThread::Run()
 				EOptState BeforeState = Component->GetOptState();
 				EOptState State;
 
-				if (IsInViewPort(Camera, Component->GetOwner()))
+				if (IsInViewPort(Camera, Component->GetOwner(), Camera->GetFOVAngle()))
 					State = CalculArea(Player, Component->GetOwner());
 				else
 					State = EOptState::EOS_Third;
@@ -107,7 +107,7 @@ void FWorkThread::RemoveComp(const int32 Handle)
 	}
 }
 
-EOptState FWorkThread::CalculArea(const AActor* Player, const AActor* Bot, const float InFOV)
+EOptState FWorkThread::CalculArea(const AActor* Player, const AActor* Bot)
 {
 	if (!IsValid(Player))
 		return EOptState::EOS_Default;
@@ -128,7 +128,7 @@ EOptState FWorkThread::CalculArea(const AActor* Player, const AActor* Bot, const
 	return State;
 }
 
-bool FWorkThread::IsInViewPort(const APlayerCameraManager* Camera, const AActor* Bot)
+bool FWorkThread::IsInViewPort(const APlayerCameraManager* Camera, const AActor* Bot, const float InFOV)
 {
 	if(!IsValid(Camera) || !IsValid(Bot))
 		return false;
@@ -138,9 +138,9 @@ bool FWorkThread::IsInViewPort(const APlayerCameraManager* Camera, const AActor*
 	const FVector CameraForward = Camera->GetActorForwardVector();
 
 	// 카메라의 FOV → 라디안 → 코사인값
-	// FOV = Camera->GetFOVAngle() 하고 싶은데 게임스레드 접근 시 문제
-	const float FOV = 90.f;
-	const float FOVRadian = FMath::DegreesToRadians(FOV);
+	// FOV = Camera->GetFOVAngle() 하고 싶은데 게임스레드 접근 시 문제(X)
+	// 크리티컬 섹션 외부에서 접근해서 발생했던 문제
+	const float FOVRadian = FMath::DegreesToRadians(InFOV);
 	const float CosValue = FMath::Cos(FOVRadian/2);
 
 	// Dot Product를 통한 시야각 판별
