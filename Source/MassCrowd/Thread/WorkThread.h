@@ -15,12 +15,9 @@ class APlayerCameraManager;
 class MASSCROWD_API FWorkThread : public FRunnable, public FGCObject
 {
 public:
-	FWorkThread(UWorld* InWorld) : Thread(nullptr), bIsRunning(false), World(InWorld) {
-	}
+	FWorkThread(UWorld* InWorld) : Thread(nullptr), bIsRunning(false), World(InWorld) { }
+	virtual ~FWorkThread() override { Stop(); }
 
-	virtual ~FWorkThread() override {
-		Stop();
-	}
 	void Work();
 	void RegisterComp(UOptComp* Comp);
 	void UnregisterComp(const UOptComp* Comp);

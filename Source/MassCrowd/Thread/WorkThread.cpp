@@ -19,18 +19,18 @@ static FString ToString(EOptState State)
 
 uint32 FWorkThread::Run()
 {
-	while (bIsRunning)
-	{
+	while (bIsRunning) {
 		APlayerCameraManager* Camera = UGameplayStatics::GetPlayerCameraManager(World, 0);
 		APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
 		APawn* Player = PC ? PC->GetPawn() : nullptr;
 
-		Mutex.Lock();
 		{
+			FScopeLock Lock(&Mutex);
+
 			for (auto& Component : Components) {
 				EOptState BeforeState = Component->GetOptState();
 				EOptState State;
-
+				// 뷰포트 외 존재 시 Third
 				if (IsInViewPort(Camera, Component->GetOwner(), Camera->GetFOVAngle()))
 					State = CalculArea(Player, Component->GetOwner());
 				else
@@ -41,7 +41,7 @@ uint32 FWorkThread::Run()
 				
 			}
 		}
-		Mutex.Unlock();
+
 		FPlatformProcess::Sleep(0.03f);
 	}
 
@@ -68,25 +68,19 @@ void FWorkThread::Work()
 
 void FWorkThread::RegisterComp(UOptComp* Comp)
 {
-	Mutex.Lock();
-	{
-		if (Comp->GetHandle() == INDEX_NONE) {
-			Comp->SetHandle(Components.Num());
-			Components.Add(Comp);
-		}
+	FScopeLock Lock(&Mutex);
+	if (Comp->GetHandle() == INDEX_NONE) {
+		Comp->SetHandle(Components.Num());
+		Components.Add(Comp);
 	}
-	Mutex.Unlock();
 }
 
 void FWorkThread::UnregisterComp(const UOptComp* Comp)
 {
-	Mutex.Lock();
-	{
-		const uint32 Handle = Comp->GetHandle();
-		if (Handle != INDEX_NONE)
-			RemoveComp(Handle);
-	}
-	Mutex.Unlock();
+	FScopeLock Lock(&Mutex);
+	const uint32 Handle = Comp->GetHandle();
+	if (Handle != INDEX_NONE)
+		RemoveComp(Handle);
 }
 
 void FWorkThread::RemoveComp(const int32 Handle)
@@ -138,8 +132,6 @@ bool FWorkThread::IsInViewPort(const APlayerCameraManager* Camera, const AActor*
 	const FVector CameraForward = Camera->GetActorForwardVector();
 
 	// 카메라의 FOV → 라디안 → 코사인값
-	// FOV = Camera->GetFOVAngle() 하고 싶은데 게임스레드 접근 시 문제(X)
-	// 크리티컬 섹션 외부에서 접근해서 발생했던 문제
 	const float FOVRadian = FMath::DegreesToRadians(InFOV);
 	const float CosValue = FMath::Cos(FOVRadian/2);
 
